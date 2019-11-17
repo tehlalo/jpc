@@ -7,6 +7,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.sql.DataSource;
 
@@ -33,5 +36,35 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception{}
+    protected void configure(HttpSecurity http) throws Exception{
+        http.authorizeRequests()
+            .antMatchers("/").permitAll()
+            .antMatchers("/index").permitAll()
+            .antMatchers("/ChooseLogin").permitAll()
+            .antMatchers("/login").permitAll()
+            .antMatchers("/register").permitAll()
+            .antMatchers("/adminMain/**").hasAnyAuthority("ADMIN").anyRequest()
+            .authenticated().and().csrf().disable()
+            .formLogin().loginPage("/login").failureUrl("/loginError")
+            .defaultSuccessUrl("/index")
+            .usernameParameter("email")
+            .passwordParameter("password")
+            .and().logout()
+            .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+            .logoutSuccessUrl("/")
+            .and().rememberMe()
+            .tokenRepository(persistentTokenRepository())
+            .tokenValiditySeconds(60*60)
+            .and().exceptionHandling().accessDeniedPage("access_denied");
+    }
+
+    private PersistentTokenRepository persistentTokenRepository() {
+
+        JdbcTokenRepositoryImpl db = new JdbcTokenRepositoryImpl();
+        db.setDataSource(dataSource);
+
+        return db;
+    }
+
+
 }
