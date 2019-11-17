@@ -1,17 +1,22 @@
 package com.jpcompany.jpc.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "roles")
+@Table(name="role")
 public class Role {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "role_id")
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="role_id")
     private int id;
 
-    @Column(name = "rolename")
+    @Column(name="role")
     private String role;
 
     public int getId() {
